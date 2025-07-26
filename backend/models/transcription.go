@@ -18,8 +18,15 @@ type Transcription struct {
 	Device       string             `bson:"device" json:"device"`
 	FileName     string             `bson:"fileName" json:"fileName"`
 	SourceUrl    string             `bson:"sourceUrl" json:"sourceUrl"`
-	Result       WhisperResult      `bson:"result" json:"result"`
-	Translations []Translation      `bson:"translations" json:"translations"`
+        Result       WhisperResult      `bson:"result" json:"result"`
+        Diarization  []DiarizationSegment `bson:"diarization" json:"diarization"`
+        Translations []Translation      `bson:"translations" json:"translations"`
+}
+
+type DiarizationSegment struct {
+        Start   float64 `json:"start" bson:"start"`
+        End     float64 `json:"end" bson:"end"`
+        Speaker string  `json:"speaker" bson:"speaker"`
 }
 
 func (t *Transcription) Translate(target string) error {

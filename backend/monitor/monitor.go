@@ -72,15 +72,23 @@ func transcribe(s *api.Server, t *models.Transcription) error {
 		return err
 	}
 
-	// Send transcription request to transcription service
-	res, err := utils.SendTranscriptionRequest(t, body, writer)
-	if err != nil {
-		log.Error().Err(err).Msg("Error sending transcription request")
-		return err
-	}
-
-	t.Result = *res
-	t.Translations = []models.Translation{}
+        // Send transcription request to transcription service
+        if t.Task == "diarize" {
+                segs, err := utils.SendDiarizationRequest(t, body, writer)
+                if err != nil {
+                        log.Error().Err(err).Msg("Error sending diarization request")
+                        return err
+                }
+                t.Diarization = segs
+        } else {
+                res, err := utils.SendTranscriptionRequest(t, body, writer)
+                if err != nil {
+                        log.Error().Err(err).Msg("Error sending transcription request")
+                        return err
+                }
+                t.Result = *res
+                t.Translations = []models.Translation{}
+        }
 	t.Status = models.TranscriptionStatusDone
 	_, err = s.Db.UpdateTranscription(t)
 	if err != nil {

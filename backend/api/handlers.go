@@ -81,12 +81,16 @@ func (s *Server) handlePostTranscription(c *fiber.Ctx) error {
 	}
 
 	// Parse the body into the transcription struct.
-	transcription.Language = c.FormValue("language")
-	transcription.ModelSize = c.FormValue("modelSize")
-	transcription.FileName = filename
-	transcription.Status = models.TranscriptionStatusPending
-	transcription.Task = "transcribe"
-	transcription.SourceUrl = c.FormValue("sourceUrl")
+        transcription.Language = c.FormValue("language")
+        transcription.ModelSize = c.FormValue("modelSize")
+        transcription.FileName = filename
+        transcription.Status = models.TranscriptionStatusPending
+        task := c.FormValue("task")
+        if task == "" {
+                task = "transcribe"
+        }
+        transcription.Task = task
+        transcription.SourceUrl = c.FormValue("sourceUrl")
 	transcription.Device = c.FormValue("device")
 	if transcription.Device != "cpu" && transcription.Device != "cuda" {
 		log.Warn().Msgf("Device %v not supported, using cpu", transcription.Device)

@@ -1,9 +1,10 @@
 import numpy as np
 from .backend import Backend, Transcription, Segment
-import os, math
+import os
+import math
 from tqdm import tqdm  # type: ignore
 import uuid
-from faster_whisper import WhisperModel, download_model, decode_audio
+from faster_whisper import WhisperModel, download_model
 
 class FasterWhisperBackend(Backend):
     device: str = "cpu"  # cpu, cuda
@@ -42,8 +43,13 @@ class FasterWhisperBackend(Backend):
         try:
             download_model(self.model_size, output_dir=local_model_path, local_files_only=True, cache_dir=local_model_cache)
             print("Model already cached...")
-        except:
-            download_model(self.model_size, output_dir=local_model_path, local_files_only=False, cache_dir=local_model_cache)
+        except Exception:
+            download_model(
+                self.model_size,
+                output_dir=local_model_path,
+                local_files_only=False,
+                cache_dir=local_model_cache,
+            )
 
     def transcribe(
         self, input: np.ndarray, silent: bool = False, language: str = None
