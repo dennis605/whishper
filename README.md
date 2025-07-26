@@ -22,6 +22,7 @@
   - Segment splitting.
   - Segment insertion.
   - Subtitle language selection.
+  - Speaker diarization for identifying different speakers.
 - [x] 🏠 **100% Local**: transcription, translation and subtitle edition happen 100% on your machine (can even work offline!).
 - [x] 🚀 **Fast**: uses FasterWhisper as the Whisper backend: get much faster transcription times on CPU!
 - [x] 👍 **Quick and easy setup**: use the quick start script, or run through a few steps!
@@ -43,7 +44,7 @@
 
 Whishper is a collection of pieces that work together. The three main pieces are:
 
-- Transcription-API: This is the API that enables running Faster-Whisper. You can find it in the `transcription-api` folder.
+- Transcription-API: This is the API that enables running Faster-Whisper. You can find it in the `transcription-api` folder. It also exposes a `/diarize/` endpoint for speaker diarization using [pyannote.audio](https://github.com/pyannote/pyannote-audio).
 - Whishper-Backend: This is the backend that coordinates frontend calls, database, and tasks. You can find it in `backend` folder.
 - Whishper-Frontend: This is the frontend (web UI) of the application. You can find it in `frontend` folder.
 - Translation (3rd party): This is the libretranslate container that is used for translating subtitles.
