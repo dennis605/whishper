@@ -8,7 +8,8 @@
 	let errorMessage = '';
 	let disableSubmit = true;
 	let modelSize = 'small';
-	let language = 'auto';
+        let language = 'auto';
+        let task = 'transcribe';
 	let sourceUrl = '';
 	let fileInput;
 	let device = env.PUBLIC_WHISHPER_PROFILE == 'gpu' ? 'cuda' : 'cpu';
@@ -75,12 +76,13 @@
 		let formData = new FormData();
 		formData.append('language', language);
 		formData.append('modelSize', modelSize);
-		if (device == 'cuda' || device == 'cpu') {
-			formData.append('device', device);
-		} else {
-			formData.append('device', 'cpu');
-		}
-		formData.append('sourceUrl', sourceUrl);
+                if (device == 'cuda' || device == 'cpu') {
+                        formData.append('device', device);
+                } else {
+                        formData.append('device', 'cpu');
+                }
+                formData.append('task', task);
+                formData.append('sourceUrl', sourceUrl);
 		if (sourceUrl == '') {
 			formData.append('file', fileInput.files[0]);
 		}
@@ -209,21 +211,30 @@
 				</select>
 			</div>
 
-			<div class="w-full max-w-xs form-control">
-				<label for="language" class="label">
-					<span class="label-text">Device</span>
-				</label>
-				<select name="device" bind:value={device} class="select select-bordered">
-					{#if env.PUBLIC_WHISHPER_PROFILE == 'gpu'}
-						<option selected value="cuda">GPU</option>
-						<option value="cpu">CPU</option>
-					{:else}
-						<option selected value="cpu">CPU</option>
-						<option disabled value="cuda">GPU</option>
-					{/if}
-				</select>
-			</div>
-		</div>
+                        <div class="w-full max-w-xs form-control">
+                                <label for="language" class="label">
+                                        <span class="label-text">Device</span>
+                                </label>
+                                <select name="device" bind:value={device} class="select select-bordered">
+                                        {#if env.PUBLIC_WHISHPER_PROFILE == 'gpu'}
+                                                <option selected value="cuda">GPU</option>
+                                                <option value="cpu">CPU</option>
+                                        {:else}
+                                                <option selected value="cpu">CPU</option>
+                                                <option disabled value="cuda">GPU</option>
+                                        {/if}
+                                </select>
+                        </div>
+                        <div class="w-full max-w-xs form-control">
+                                <label for="task" class="label">
+                                        <span class="label-text">Task</span>
+                                </label>
+                                <select name="task" bind:value={task} class="select select-bordered">
+                                        <option value="transcribe">Transcribe</option>
+                                        <option value="diarize">Diarize</option>
+                                </select>
+                        </div>
+                </div>
 
 		<div class="mb-0 divider" />
 		<!--Actions-->

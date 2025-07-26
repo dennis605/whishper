@@ -71,7 +71,11 @@ func DownloadMedia(t *models.Transcription) (string, error) {
 }
 
 func SendTranscriptionRequest(t *models.Transcription, body *bytes.Buffer, writer *multipart.Writer) (*models.WhisperResult, error) {
-	url := fmt.Sprintf("http://%v/transcribe?model_size=%v&task=%v&language=%v&device=%v", os.Getenv("ASR_ENDPOINT"), t.ModelSize, t.Task, t.Language, t.Device)
+        endpoint := "transcribe"
+        if t.Task == "diarize" {
+                endpoint = "diarize"
+        }
+        url := fmt.Sprintf("http://%v/%v?model_size=%v&task=%v&language=%v&device=%v", os.Getenv("ASR_ENDPOINT"), endpoint, t.ModelSize, t.Task, t.Language, t.Device)
 	// Send transcription request to transcription service
 	req, err := http.NewRequest("POST", url, body)
 	if err != nil {
@@ -108,4 +112,38 @@ func SendTranscriptionRequest(t *models.Transcription, body *bytes.Buffer, write
 
 	return asrResponse, nil
 
+}
+
+func SendDiarizationRequest(t *models.Transcription, body *bytes.Buffer, writer *multipart.Writer) ([]models.DiarizationSegment, error) {
+        endpoint := "http://" + os.Getenv("ASR_ENDPOINT") + "/diarize?device=" + t.Device
+        req, err := http.NewRequest("POST", endpoint, body)
+        if err != nil {
+                log.Debug().Err(err).Msg("Error creating request to diarization service")
+                return nil, err
+        }
+        req.Header.Set("Content-Type", writer.FormDataContentType())
+        req.Header.Set("Accept", "application/json")
+        client := &http.Client{}
+        resp, err := client.Do(req)
+        if err != nil {
+                log.Debug().Err(err).Msg("Error sending request")
+                return nil, err
+        }
+        defer resp.Body.Close()
+        b, err := io.ReadAll(resp.Body)
+        if err != nil {
+                log.Debug().Err(err).Msg("Error reading response body")
+                return nil, err
+        }
+        if resp.StatusCode != http.StatusOK {
+                log.Debug().Msgf("Response from %v: %v", endpoint, string(b))
+                return nil, errors.New("invalid status")
+        }
+
+        var segments []models.DiarizationSegment
+        if err := json.Unmarshal(b, &segments); err != nil {
+                log.Debug().Err(err).Msg("Error decoding diarization response")
+                return nil, err
+        }
+        return segments, nil
 }
